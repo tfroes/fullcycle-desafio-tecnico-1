@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "8080:8080"
+    networks:
+      - localNetwork
+
+  redis:
+    image: redis:alpine3.22
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - localNetwork
+
+networks:
+  localNetwork:
+    driver: bridge
