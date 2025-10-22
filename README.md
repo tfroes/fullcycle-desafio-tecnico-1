@@ -43,8 +43,8 @@ Teste seu rate limiter sob diferentes condições de carga para garantir que ele
 
 # Documentação
 
-O rate limiter trabalha com dois níveis de cotas de requesições por tempo, o primeiro por apikey e o segundo por ip.  
-Em cada requisicação é analisado se existe cota no primeiro nível (apikey) e somente depois, se a cota tiver acabado, é que é analisado a cota no segundo nível (ip).
+O rate limiter trabalha com dois níveis de cotas de requesições por tempo, por apikey e o por ip.  
+Em cada requisicação, é verificado se a apikey foi declarada no header. Se declarado a apikey, então é utilizado a cota de apikey, caso não esteja declarado a apikey, então é utilizado a cota de ip.
 
 ## Configurações
 
