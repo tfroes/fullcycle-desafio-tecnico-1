@@ -52,13 +52,13 @@ func Test_ChamadaPorAPIKey_Liberado(t *testing.T) {
 	rlDatabase.On("BuscaTotalPorAPIKey", chaveApiKey).Return(int64(0), nil)
 	rlDatabase.On("SomaRequisicaoPorAPIKey", chaveApiKey).Return(nil)
 
-	ok, err := rl.VerificaRegistra(ctx, "127.0.0.1", "ChaveXYZ", dataResquest)
+	ok, err := rl.VerificaRegistraPorAPIKey(ctx, "ChaveXYZ", dataResquest)
 
 	assert.Nil(t, err)
 	assert.True(t, ok)
 }
 
-func Test_ChamadaPorAPIKey_Bloqueada_PorIP_Liberado(t *testing.T) {
+func Test_ChamadaPorIP_Liberado(t *testing.T) {
 	ctx := context.Background()
 
 	rlDatabase := &RateLimiterDatabaseMock{}
@@ -74,18 +74,16 @@ func Test_ChamadaPorAPIKey_Bloqueada_PorIP_Liberado(t *testing.T) {
 	chaveApiKey := int64(1760208325)
 	dataResquest, err := time.Parse(time.RFC3339, "2025-10-11T18:45:25Z")
 
-	rlDatabase.On("BuscaTotalPorAPIKey", chaveApiKey).Return(int64(10), nil)
-	rlDatabase.On("SomaRequisicaoPorAPIKey", chaveApiKey).Return(nil)
 	rlDatabase.On("BuscaTotalPorIp", chaveApiKey).Return(int64(0), nil)
 	rlDatabase.On("SomaRequisicaoPorIp", chaveApiKey).Return(nil)
 
-	ok, err := rl.VerificaRegistra(ctx, "127.0.0.1", "ChaveXYZ", dataResquest)
+	ok, err := rl.VerificaRegistraPorIp(ctx, "127.0.0.1", dataResquest)
 
 	assert.Nil(t, err)
 	assert.True(t, ok)
 }
 
-func Test_ChamadaPorAPIKey_Bloqueada_PorIP_Bloqueado(t *testing.T) {
+func Test_ChamadaPorIP_Bloqueado(t *testing.T) {
 	ctx := context.Background()
 
 	rlDatabase := &RateLimiterDatabaseMock{}
@@ -101,11 +99,9 @@ func Test_ChamadaPorAPIKey_Bloqueada_PorIP_Bloqueado(t *testing.T) {
 	chaveApiKey := int64(1760208325)
 	dataResquest, err := time.Parse(time.RFC3339, "2025-10-11T18:45:25Z")
 
-	rlDatabase.On("BuscaTotalPorAPIKey", chaveApiKey).Return(int64(10), nil)
-	rlDatabase.On("SomaRequisicaoPorAPIKey", chaveApiKey).Return(nil)
 	rlDatabase.On("BuscaTotalPorIp", chaveApiKey).Return(int64(10), nil)
 
-	ok, err := rl.VerificaRegistra(ctx, "127.0.0.1", "ChaveXYZ", dataResquest)
+	ok, err := rl.VerificaRegistraPorIp(ctx, "127.0.0.1", dataResquest)
 
 	assert.Nil(t, err)
 	assert.False(t, ok)

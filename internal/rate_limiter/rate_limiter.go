@@ -25,33 +25,9 @@ func NewRateLimiter(config *RateLimiterConfig, database RateLimiterDatabaseInter
 	}
 }
 
-func (rl *RateLimiter) VerificaRegistra(ctx context.Context, ip string, apiKey string, datahoraRequest time.Time) (bool, error) {
+func (rl *RateLimiter) VerificaRegistraPorAPIKey(ctx context.Context, apikey string, datahoraRequest time.Time) (bool, error) {
 
-	chaveApiKey := datahoraRequest.Unix() / int64(rl.config.APIKeyDuration.Seconds())
-	chaveIp := datahoraRequest.Unix() / int64(rl.config.IPDuration.Seconds())
-
-	//Buscar o Total por API
-	onApiKey, err := rl.verificaRegistraPorAPIKey(ctx, apiKey, chaveApiKey)
-
-	if err != nil {
-		return false, err
-	}
-
-	if onApiKey {
-		return true, nil
-	}
-
-	//Buscar o Total por IP
-	onIp, err := rl.verificaRegistraPorIp(ctx, ip, chaveIp)
-
-	if err != nil {
-		return false, err
-	}
-
-	return onIp, nil
-}
-
-func (rl *RateLimiter) verificaRegistraPorAPIKey(ctx context.Context, apikey string, chave int64) (bool, error) {
+	chave := datahoraRequest.Unix() / int64(rl.config.APIKeyDuration.Seconds())
 
 	//Busca o Total por APIKey
 	totalPorAPIKey, err := rl.database.BuscaTotalPorAPIKey(ctx, apikey, chave)
@@ -74,7 +50,9 @@ func (rl *RateLimiter) verificaRegistraPorAPIKey(ctx context.Context, apikey str
 	return false, nil
 }
 
-func (rl *RateLimiter) verificaRegistraPorIp(ctx context.Context, ip string, chave int64) (bool, error) {
+func (rl *RateLimiter) VerificaRegistraPorIp(ctx context.Context, ip string, datahoraRequest time.Time) (bool, error) {
+
+	chave := datahoraRequest.Unix() / int64(rl.config.IPDuration.Seconds())
 
 	//Buscar o Total por Ip
 	totalPorIp, err := rl.database.BuscaTotalPorIp(ctx, ip, chave)

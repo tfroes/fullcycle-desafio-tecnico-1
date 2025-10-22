@@ -56,20 +56,20 @@ func rateLimiterMiddleware(next http.Handler) http.Handler {
 
 		log.Println("[HTTP] Request received")
 
-		apiKey := r.Header.Get("APIKEY")
-		if apiKey == "" {
-			log.Println("[HTTP] APIKey not found")
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Não autorizado (Chave não encontrado)."))
-			return
-		}
-
-		ip := extrairIp(r.RemoteAddr)
-		//log.Println(fmt.Sprintf("[HTTP] Request received from IP: %s, Key: %s", ip, apiKey))
-		log.Printf("[HTTP] Request received from IP: %s, Key: %s", ip, apiKey)
-
+		var ok bool = false
+		var err error
 		tempo := time.Now()
-		ok, err := rl.VerificaRegistra(ctx, ip, apiKey, tempo)
+		apiKey := r.Header.Get("APIKEY")
+
+		if apiKey == "" {
+			ip := extrairIp(r.RemoteAddr)
+			log.Printf("[HTTP] Request received from IP: %s", ip)
+			ok, err = rl.VerificaRegistraPorIp(ctx, ip, tempo)
+
+		} else {
+			log.Printf("[HTTP] Request received from Key: %s", apiKey)
+			ok, err = rl.VerificaRegistraPorAPIKey(ctx, apiKey, tempo)
+		}
 
 		if err != nil {
 			log.Println("[HTTP] Error trying to register request")
@@ -81,7 +81,7 @@ func rateLimiterMiddleware(next http.Handler) http.Handler {
 		if !ok {
 			log.Println("[HTTP] Rate limit exceeded")
 			w.WriteHeader(http.StatusTooManyRequests)
-			w.Write([]byte("Taxa de requisição excedida."))
+			w.Write([]byte("you have reached the maximum number of requests or actions allowed within a certain time frame"))
 			return
 		}
 
